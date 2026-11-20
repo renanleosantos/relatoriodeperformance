@@ -1,0 +1,943 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <meta name="theme-color" content="#16D15E">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-circle-192.png">
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+  <title>Relatório de Performance • CNPJ Mental</title>
+  <style>
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: Inter, system-ui, -apple-system, sans-serif; background: #0B1120; color: #fff; padding: 12px; padding-bottom: 32px; }
+    .card { background: #111827; border: 1px solid #334155; border-radius: 16px; padding: 14px; margin-bottom: 12px; }
+    .brand-header { display: flex; align-items: center; gap: 12px; margin-bottom: 6px; }
+    .brand-logo { width: 50px; height: 50px; border-radius: 12px; object-fit: cover; flex-shrink: 0; border: 1px solid #16D15E66; }
+    h1 { color: #16D15E; margin: 2px 0; font-size: 20px; letter-spacing: -0.3px; }
+    h3 { margin: 0 0 10px 0; font-size: 15px; }
+    label { font-size: 11px; color: #94a3b8; font-weight: 700; display: block; margin-top: 4px; }
+    .small { color: #94a3b8; font-size: 11px; line-height: 1.4; }
+    input, select, button { border-radius: 10px; border: 1px solid #475569; background: #020617; color: #fff; padding: 10px; width: 100%; margin: 4px 0; font-size: 14px; }
+    input:focus, select:focus { outline: none; border-color: #16D15E; }
+    button { cursor: pointer; font-weight: 800; transition: opacity .15s; }
+    button:active { opacity: 0.8; }
+    .green { background: #16D15E; color: #050B08; border: none; }
+    .blue { background: #00B0F0; color: #000; border: none; }
+    .amber { background: #FFC000; color: #000; border: none; }
+    .ghost { background: #1e293b; color: #f8fafc; }
+    .danger { background: #7f1d1d; color: #fecaca; border-color: #991b1b; }
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
+    .kpi { background: #020617; border-radius: 12px; padding: 10px; border: 1px solid #334155; font-size: 11px; color: #94a3b8; }
+    .kpi span, .kpi b { display: block; font-size: 15px; font-weight: 800; color: #fff; margin-top: 3px; }
+    .wrap { overflow-x: auto; border-radius: 10px; border: 1px solid #334155; }
+    table { width: 100%; border-collapse: collapse; font-size: 12px; min-width: 980px; }
+    th { background: #fff; color: #000; padding: 8px 6px; font-weight: 800; white-space: nowrap; }
+    td { padding: 7px 6px; text-align: center; font-weight: 800; color: #fff; border: 1px solid #ffffff26; white-space: nowrap; }
+    .op { display: flex; gap: 6px; align-items: center; }
+    .op select { flex: 1.2; }
+    .op input { flex: 1; }
+    .chip { display: inline-block; background: #1e293b; border: 1px solid #475569; border-radius: 999px; padding: 4px 9px; font-size: 11px; margin: 2px; font-weight: 700; }
+    .btn-mini { padding: 5px 8px; font-size: 11px; width: auto; margin: 1px; border-radius: 7px; }
+    .pos { color: #16D15E !important; }
+    .neg { color: #f87171 !important; }
+    .import-review { margin-top:10px;padding:10px;border:1px solid #475569;border-radius:12px;background:#020617; }
+    .import-table { width:100%; min-width:760px; border-collapse:collapse; font-size:11px; }
+    .import-table th,.import-table td { padding:7px; border:1px solid #334155; text-align:left; white-space:nowrap; }
+    .import-table th { background:#1e293b;color:#e2e8f0; }
+    .finance-table { width:100%; min-width:520px; border-collapse:collapse; font-size:12px; }
+    .finance-table th,.finance-table td { padding:8px; border:1px solid #334155; text-align:right; }
+    .finance-table th:first-child,.finance-table td:first-child { text-align:left; }
+    .finance-table th { background:#1e293b;color:#e2e8f0; }
+    .finance-actions { display:grid;grid-template-columns:1fr 1fr;gap:8px; }
+    .tab-nav { position:sticky;top:6px;z-index:50;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;margin:10px 0 12px;padding:7px;background:#111827;border:1px solid #334155;border-radius:14px;box-shadow:0 8px 24px #0005; }
+    .tab-btn { margin:0;padding:11px 6px;background:#1e293b;color:#cbd5e1;border:1px solid #475569;font-size:12px; }
+    .tab-btn.active { background:#16D15E;color:#04110a;border-color:#16D15E; }
+    .app-panel { display:none; }
+    .app-panel.active { display:block; }
+    .history-scroll { max-height:320px;overflow:auto;overscroll-behavior:contain; }
+    .history-scroll table { border-collapse:separate;border-spacing:0; }
+    .history-scroll thead th { position:sticky;top:0;z-index:2; }
+    #cardGrade .wrap { max-height:440px;overflow:auto;overscroll-behavior:contain; }
+    #cardGrade thead th { position:sticky;top:0;z-index:2; }
+    @media (max-width:520px) {
+      body { padding:8px;padding-bottom:24px; }
+      .tab-nav { gap:5px;padding:5px; }
+      .tab-btn { font-size:11px;padding:10px 3px; }
+      .history-scroll { max-height:280px; }
+      #cardGrade .wrap { max-height:380px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="brand-header">
+      <img src="icons/icon-192.png" alt="Logo Relatório de Performance" class="brand-logo">
+      <div>
+        <div style="color:#FFC000;font-size:10px;font-weight:800;letter-spacing:.5px">GOVERNANÇA DIÁRIA • CNPJ MENTAL</div>
+        <h1>RELATÓRIO DE PERFORMANCE</h1>
+        <div class="small">DISCIPLINA • PLANEJAMENTO • PROTEÇÃO • LONGO PRAZO</div>
+      </div>
+    </div>
+    <div class="grid-3" style="margin-top:8px">
+      <div><label>Mês</label><select id="mes"></select></div>
+      <div><label>Ano</label><select id="ano"></select></div>
+    </div>
+    <div id="comparar" style="display:flex;gap:8px;overflow-x:auto;margin-top:8px"></div>
+  </div>
+
+  <nav class="tab-nav" aria-label="Navegação principal">
+    <button type="button" class="tab-btn" id="tabResumo" onclick="mostrarAba('resumo')">Resumo</button>
+    <button type="button" class="tab-btn active" id="tabDaytrade" onclick="mostrarAba('daytrade')">Day Trade</button>
+    <button type="button" class="tab-btn" id="tabFinanceiro" onclick="mostrarAba('financeiro')">Financeiro</button>
+  </nav>
+
+  <section class="app-panel" id="painelResumo">
+  <div class="card">
+    <h3 id="tituloResumoAno" style="color:#16D15E">Resumo Consolidado</h3>
+    <div class="grid" style="margin:8px 0 12px">
+      <div>
+        <label>Data inicial</label><input type="date" id="periodoDataInicio" min="2020-01-01" max="2030-12-31">
+      </div>
+      <div>
+        <label>Data final</label><input type="date" id="periodoDataFim" min="2020-01-01" max="2030-12-31">
+      </div>
+    </div>
+    <div class="grid-3">
+      <div class="kpi">Resultado Líquido<span id="aRes">R$ 0,00</span></div>
+      <div class="kpi">Total Gain<span id="aGain" class="pos">R$ 0,00</span></div>
+      <div class="kpi">Total Loss<span id="aLoss" class="neg">R$ 0,00</span></div>
+      <div class="kpi">Margem 30%<span id="aMargem" style="color:#FFC000">R$ 0,00</span></div>
+      <div class="kpi">Digital 70%<span id="aDigital" style="color:#fb923c">R$ 0,00</span></div>
+      <div class="kpi">Sobra Líq. Retenção<span id="aSobra">R$ 0,00</span></div>
+    </div>
+    <div class="grid-3" style="margin-top:8px">
+      <div class="kpi">Caridade 10% <b id="aCar">R$ 0,00</b></div>
+      <div class="kpi">Enzo 10% <b id="aEnzo">R$ 0,00</b></div>
+      <div class="kpi">Ester 10% <b id="aEster">R$ 0,00</b></div>
+      <div class="kpi">Estela 10% <b id="aEstela">R$ 0,00</b></div>
+      <div class="kpi">Pró-Labore 30% <b id="aPro">R$ 0,00</b></div>
+      <div class="kpi">DARF Pago <b id="aDarf">R$ 0,00</b></div>
+    </div>
+    <div id="aPorAtivo" style="margin-top:10px;font-size:12px"></div>
+  </div>
+  </section>
+
+  <section class="app-panel" id="painelFinanceiro">
+  <div class="card" id="cardFinanceiro">
+    <h3 style="color:#16D15E">Controle Financeiro — Recebimentos e Retiradas</h3>
+    <div class="grid-3">
+      <div class="kpi">Recebimentos<span id="finRecebido" class="neg">R$ 0,00</span></div>
+      <div class="kpi">Retiradas<span id="finRetirado" class="pos">R$ 0,00</span></div>
+      <div class="kpi">Saldo Líquido<span id="finSaldo">R$ 0,00</span></div>
+    </div>
+    <div class="small" id="finPeriodoInfo" style="margin:8px 0">Valores do mesmo período selecionado no Resumo Consolidado acima. Este controle não altera o resultado do Day Trade.</div>
+    <h3 style="margin-top:12px">Lançamento simples — Recebimentos e Retiradas</h3>
+    <div class="grid-3">
+      <div><label>Tipo de movimentação</label><select id="finManualTipo"><option value="recebimento">Recebimento</option><option value="retirada">Retirada</option></select></div>
+      <div><label>Data do Pregão</label><input type="date" id="finManualData" min="2020-01-01" max="2030-12-31"></div>
+      <div><label>Valor da movimentação (R$)</label><input id="finManualValor" inputmode="decimal" placeholder="Ex.: 100,00"></div>
+    </div>
+    <div class="finance-actions" style="margin-top:8px">
+      <button class="green" onclick="adicionarMovimentacaoManual()">Salvar lançamento</button>
+      <button class="ghost" onclick="exportarFinanceiroCSV()">Exportar financeiro CSV</button>
+    </div>
+    <div class="small" style="margin-top:8px">Cada cadastro representa uma operação simples: escolha Recebimento ou Retirada, informe a data do pregão e o valor. Depois da importação do histórico antigo, os próximos lançamentos são feitos somente aqui, sem Excel.</div>
+    <div style="margin-top:14px;padding-top:12px;border-top:1px solid #334155">
+      <h3>Importar histórico do Excel (uma única vez)</h3>
+      <div class="small">Selecione o arquivo de recebimentos ou o arquivo de retiradas. A planilha deve conter as colunas Data e Valor. Depois da importação inicial, use apenas o cadastro manual acima.</div>
+      <div class="grid" style="margin-top:8px">
+        <button class="green" onclick="selecionarExcelFinanceiro('recebimento')">Subir Excel de recebimentos</button>
+        <button class="green" onclick="selecionarExcelFinanceiro('retirada')">Subir Excel de retiradas</button>
+      </div>
+      <select id="finTipo" style="display:none"><option value="recebimento">Recebimentos</option><option value="retirada">Retiradas</option></select>
+      <input type="file" id="fileFinanceiro" accept=".xlsx,.xls" style="display:none" onchange="lerMovimentacoesFinanceiras()">
+      <div id="finStatus" class="small" style="margin-top:8px">Nenhum arquivo selecionado.</div>
+      <div id="finReview" class="import-review" style="display:none"></div>
+    </div>
+    <h3 style="margin-top:14px">Lançamentos financeiros cadastrados</h3>
+    <div class="wrap history-scroll"><table class="finance-table"><thead><tr><th>Data</th><th>Tipo</th><th>Valor</th><th>Ação</th></tr></thead><tbody id="finHistorico"></tbody></table></div>
+    <h3 style="margin-top:14px">Totais por mês no período</h3>
+    <div class="wrap history-scroll"><table class="finance-table"><thead><tr><th>Mês</th><th>Recebimentos</th><th>Retiradas</th><th>Saldo</th></tr></thead><tbody id="finMensal"></tbody></table></div>
+    <h3 style="margin-top:14px">Totais por ano no período</h3>
+    <div class="wrap history-scroll"><table class="finance-table"><thead><tr><th>Ano</th><th>Recebimentos</th><th>Retiradas</th><th>Saldo</th></tr></thead><tbody id="finAnual"></tbody></table></div>
+  </div>
+  </section>
+
+  <section class="app-panel active" id="painelDaytrade">
+  <div class="card" id="cardForm">
+    <h3 id="formTitle">Lançamento</h3>
+    <div class="grid">
+      <div><label>Data do Pregão</label><input id="data" type="date"></div>
+      <div><label>DARF Pago (R$)</label><input id="darf" inputmode="decimal" placeholder="0,00"></div>
+    </div>
+    <div style="display:flex;gap:8px;margin:8px 0">
+      <button class="blue" id="btnSimples" onclick="setModo('simples')">Lançamento Simples</button>
+      <button class="ghost" id="btnOps" onclick="setModo('ops')">Por Operação</button>
+    </div>
+    <div id="boxSimples">
+      <label>Resultado Líquido do Pregão (R$)</label>
+      <input id="resSimples" inputmode="decimal" placeholder="Ex: 200 ou -112">
+    </div>
+    <div id="boxOps" style="display:none">
+      <div id="opsList"></div>
+      <button class="blue" onclick="addOp()">+ Adicionar Operação</button>
+      <div class="small">Ex: Bitcoin +120, Petrobras -30, Mini Dólar +50 = Total +140</div>
+    </div>
+    <div style="display:flex;gap:6px;margin-top:8px">
+      <button class="ghost" onclick="quick(200)">+R$200</button>
+      <button class="ghost" onclick="quick(100)">+R$100</button>
+      <button class="ghost" onclick="quick(50)">+R$50</button>
+      <button class="ghost" onclick="quick(-112)">-R$112</button>
+    </div>
+    <div id="previa" style="margin-top:10px;background:#020617;padding:10px;border-radius:12px;border:1px solid #334155;font-size:12px;line-height:1.5"></div>
+    <div style="display:flex;gap:8px;margin-top:6px">
+      <button class="green" id="btnSalvar" onclick="salvar()">Salvar Pregão</button>
+      <button class="ghost" onclick="limparForm()">Limpar</button>
+    </div>
+    <div class="grid" style="margin-top:8px">
+      <button class="ghost" onclick="exportar()">Backup</button>
+      <button class="ghost" onclick="document.getElementById('fileImp').click()">Restaurar</button>
+      <button class="ghost" onclick="exportarCSV()">Exportar CSV</button>
+      <button class="ghost" onclick="document.getElementById('fileCsvPlat').click()">Importar CSV</button>
+      <button class="green" onclick="document.getElementById('fileAjustes').click()">Importar histórico de ajustes (uma vez)</button>
+      <button class="ghost" onclick="teste()">Dados de Teste</button>
+    </div>
+    <button class="danger" style="margin-top:6px" onclick="limparTudo()">Apagar Todos os Pregões (Day Trade)</button>
+    <input type="file" id="fileImp" accept=".json" style="display:none" onchange="importar(event)">
+    <input type="file" id="fileCsvPlat" accept=".csv,.txt" style="display:none" onchange="importarCSV(event)">
+    <input type="file" id="fileAjustes" accept=".csv,.txt,.xlsx,.xls" style="display:none" onchange="lerAjustesDayTrade(event)">
+    <div id="ajustesStatus" class="small" style="margin-top:8px">Importe uma única vez os ajustes antigos da corretora. Para os próximos pregões, use o formulário de lançamento de resultado do Day Trade acima.</div>
+    <div id="ajustesReview" class="import-review" style="display:none"></div>
+  </div>
+
+  <div class="card" id="cardGrade">
+    <h3>Grade do Mês + TOTAL</h3>
+    <div class="wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Data</th><th>Resultado</th><th>Loss</th><th>Margem (30%)</th><th>Digital (70%)</th>
+            <th>Caridade (10%)</th><th>Enzo (10%)</th><th>Ester (10%)</th><th>Estela (10%)</th>
+            <th>Pró-Labore (30%)</th><th>DARF (Pago)</th><th>Ações</th>
+          </tr>
+        </thead>
+        <tbody id="tbody"></tbody>
+        <tfoot><tr id="tfoot"></tr></tfoot>
+      </table>
+    </div>
+    <div id="detalhe" style="margin-top:10px;font-size:12px"></div>
+  </div>
+  </section>
+
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <script>
+    let dados = JSON.parse(localStorage.getItem('cnpj_mental_v5') || '[]');
+    let modo = 'simples';
+    let editIdx = null;
+    const meses = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+    let selMes = new Date().getMonth(), selAno = new Date().getFullYear();
+    let ajustesPendentes = null;
+    let historicoAjustes = JSON.parse(localStorage.getItem('cnpj_ajustes_daytrade_v1') || '[]');
+    let movimentacoesFinanceiras = JSON.parse(localStorage.getItem('cnpj_movimentacoes_financeiras_v1') || '[]').map(x => ({...x, valor:Number((x.tipo === 'recebimento' ? -Math.abs(Number(x.valor)||0) : Math.abs(Number(x.valor)||0)).toFixed(2))}));
+    let financeiroPendente = null;
+    // Atualiza lançamentos gravados na versão anterior para o sinal correto no bolso.
+    localStorage.setItem('cnpj_movimentacoes_financeiras_v1', JSON.stringify(movimentacoesFinanceiras));
+
+    function mostrarAba(aba) {
+      const paineis = { resumo: 'painelResumo', daytrade: 'painelDaytrade', financeiro: 'painelFinanceiro' };
+      Object.entries(paineis).forEach(([chave, id]) => {
+        document.getElementById(id).classList.toggle('active', chave === aba);
+        document.getElementById('tab' + chave.charAt(0).toUpperCase() + chave.slice(1)).classList.toggle('active', chave === aba);
+      });
+      localStorage.setItem('cnpj_ultima_aba', aba);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function fmt(v) {
+      return (v < 0 ? '-R$ ' : 'R$ ') + Math.abs(v).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
+    function parse(v) {
+      if (!v) return 0;
+      let s = String(v).replace(/R\$/g, '').trim();
+      if (s.includes('.') && s.includes(',')) s = s.replace(/\./g, '').replace(',', '.');
+      else if (s.includes(',')) s = s.replace(',', '.');
+      let n = Number(s);
+      return isFinite(n) ? n : 0;
+    }
+    function calc(r, darf) {
+      let gain = r > 0 ? r : 0, loss = r < 0 ? r : 0;
+      return { gain, loss, margem: gain * .3, digital: gain * .7, car: gain * .1, enzo: gain * .1, ester: gain * .1, estela: gain * .1, pro: gain * .3, darf: darf || 0 };
+    }
+    function save() {
+      localStorage.setItem('cnpj_mental_v5', JSON.stringify(dados));
+    }
+    function setModo(m) {
+      modo = m;
+      document.getElementById('boxSimples').style.display = m === 'simples' ? 'block' : 'none';
+      document.getElementById('boxOps').style.display = m === 'ops' ? 'block' : 'none';
+      document.getElementById('btnSimples').className = m === 'simples' ? 'blue' : 'ghost';
+      document.getElementById('btnOps').className = m === 'ops' ? 'blue' : 'ghost';
+      if (m === 'ops' && document.getElementById('opsList').children.length === 0) { addOp(); addOp(); }
+      atualizaPrevia();
+    }
+    function addOp(ativo = '', valor = '') {
+      let d = document.createElement('div');
+      d.className = 'op';
+      d.innerHTML = `<select><option>Índice WIN</option><option>Mini Dólar</option><option>Bitcoin</option><option>Petrobras PETR4</option><option>Vale VALE3</option><option>Ações</option><option>Outro</option></select><input inputmode="decimal" placeholder="Ex: 120 ou -30" value="${valor}"><button class="danger" style="width:42px" onclick="this.parentElement.remove();atualizaPrevia()">X</button>`;
+      if (ativo) {
+        let sel = d.querySelector('select');
+        if (![...sel.options].some(op => op.value === ativo)) sel.add(new Option(ativo, ativo));
+        sel.value = ativo;
+      }
+      d.querySelectorAll('input,select').forEach(e => e.oninput = atualizaPrevia);
+      document.getElementById('opsList').appendChild(d);
+      atualizaPrevia();
+    }
+    function totalOps() {
+      let t = 0;
+      document.querySelectorAll('#opsList .op').forEach(o => { t += parse(o.querySelector('input').value); });
+      return t;
+    }
+    function atualizaPrevia() {
+      let r = modo === 'simples' ? parse(document.getElementById('resSimples').value) : totalOps();
+      let darf = parse(document.getElementById('darf').value);
+      let c = calc(r, darf);
+      document.getElementById('previa').innerHTML = `<b>Prévia:</b> Gain <span class="pos">${fmt(c.gain)}</span> | Loss <span class="neg">${fmt(c.loss)}</span> | Margem 30% <b>${fmt(c.margem)}</b> | Digital 70% <b>${fmt(c.digital)}</b><br>Caridade <b>${fmt(c.car)}</b> | Cada filho <b>${fmt(c.enzo)}</b> | Pró-Labore <b>${fmt(c.pro)}</b> | Sobra Retenção <b>${fmt(c.margem - darf)}</b>`;
+    }
+    function quick(v) {
+      if (modo === 'simples') document.getElementById('resSimples').value = v;
+      else addOp('Índice WIN', v);
+      atualizaPrevia();
+    }
+    function salvar() {
+      let data = document.getElementById('data').value;
+      if (!data) { alert('Escolha a data do pregão.'); return; }
+      let darf = parse(document.getElementById('darf').value);
+      let ops = [], total = 0;
+      if (modo === 'simples') {
+        total = parse(document.getElementById('resSimples').value);
+      } else {
+        document.querySelectorAll('#opsList .op').forEach(o => {
+          let a = o.querySelector('select').value, v = parse(o.querySelector('input').value);
+          if (v !== 0) ops.push({ ativo: a, valor: v });
+        });
+        total = ops.reduce((s, o) => s + o.valor, 0);
+      }
+      if (total === 0 && darf === 0) { alert('Digite um valor diferente de zero.'); return; }
+      if (editIdx !== null) {
+        dados[editIdx] = { data, resultado: total, darf, ops };
+        editIdx = null;
+      } else {
+        dados.push({ data, resultado: total, darf, ops });
+      }
+      dados.sort((a, b) => a.data.localeCompare(b.data));
+      let [y, m] = data.split('-');
+      selAno = Number(y); selMes = Number(m) - 1;
+      save(); limparForm(); render();
+    }
+    function editar(idx) {
+      let e = dados[idx];
+      editIdx = idx;
+      document.getElementById('formTitle').textContent = 'Editando Pregão (' + e.data.split('-').reverse().join('/') + ')';
+      document.getElementById('btnSalvar').textContent = 'Atualizar Pregão';
+      document.getElementById('btnSalvar').className = 'amber';
+      document.getElementById('data').value = e.data;
+      document.getElementById('darf').value = e.darf || '';
+      if (e.ops && e.ops.length) {
+        setModo('ops');
+        document.getElementById('opsList').innerHTML = '';
+        e.ops.forEach(o => addOp(o.ativo, o.valor));
+      } else {
+        setModo('simples');
+        document.getElementById('resSimples').value = e.resultado;
+      }
+      atualizaPrevia();
+      mostrarAba('daytrade');
+      document.getElementById('cardForm').scrollIntoView({ behavior: 'smooth' });
+    }
+    function limparForm() {
+      editIdx = null;
+      document.getElementById('formTitle').textContent = 'Lançamento';
+      document.getElementById('btnSalvar').textContent = 'Salvar Pregão';
+      document.getElementById('btnSalvar').className = 'green';
+      document.getElementById('resSimples').value = '';
+      document.getElementById('darf').value = '';
+      document.getElementById('opsList').innerHTML = '';
+      if (modo === 'ops') setModo('ops');
+      atualizaPrevia();
+    }
+    function filtrados() {
+      return dados.filter(d => { let [y, m] = d.data.split('-'); return Number(y) === selAno && Number(m) === selMes + 1; });
+    }
+    function render() {
+      let mesSel = document.getElementById('mes');
+      mesSel.innerHTML = meses.map((m, i) => `<option value="${i}" ${i === selMes ? 'selected' : ''}>${m}</option>`).join('');
+      const anoSelect = document.getElementById('ano');
+      if (!anoSelect.options.length) {
+        anoSelect.innerHTML = Array.from({length: 11}, (_, i) => 2020 + i).map(a => `<option value="${a}">${a}</option>`).join('');
+      }
+      if (selAno < 2020 || selAno > 2030) selAno = Math.min(2030, Math.max(2020, selAno));
+      anoSelect.value = selAno;
+
+      // A grade continua mostrando os lançamentos do mês selecionado.
+      let lista = filtrados();
+
+      // O resumo consolidado único usa o intervalo de datas escolhido.
+      const campoDataInicio = document.getElementById('periodoDataInicio');
+      const campoDataFim = document.getElementById('periodoDataFim');
+      if (!campoDataInicio.value || !campoDataFim.value) definirPeriodoMes();
+      const dataInicio = campoDataInicio.value;
+      const dataFim = campoDataFim.value;
+      const inicioValido = dataInicio <= dataFim;
+      const listaAno = inicioValido ? dados.filter(d => d.data >= dataInicio && d.data <= dataFim) : [];
+      const totalAno = { gain: 0, loss: 0, margem: 0, digital: 0, car: 0, enzo: 0, ester: 0, estela: 0, pro: 0, darf: 0 };
+      const ativosAno = {};
+      listaAno.forEach(e => {
+        const c = calc(e.resultado, e.darf);
+        Object.keys(totalAno).forEach(k => totalAno[k] += c[k]);
+        (e.ops || []).forEach(o => { ativosAno[o.ativo] = (ativosAno[o.ativo] || 0) + o.valor; });
+      });
+      const liquidoAno = totalAno.gain + totalAno.loss;
+      const formatarDataPeriodo = valor => valor ? valor.split('-').reverse().join('/') : '';
+      document.getElementById('tituloResumoAno').textContent = inicioValido
+        ? `Resumo Consolidado — ${formatarDataPeriodo(dataInicio)} até ${formatarDataPeriodo(dataFim)}`
+        : 'Resumo Consolidado — Período inválido (data inicial após a final)';
+      const valoresAno = {
+        aRes: liquidoAno, aGain: totalAno.gain, aLoss: totalAno.loss,
+        aMargem: totalAno.margem, aDigital: totalAno.digital,
+        aSobra: totalAno.margem - totalAno.darf, aCar: totalAno.car,
+        aEnzo: totalAno.enzo, aEster: totalAno.ester, aEstela: totalAno.estela,
+        aPro: totalAno.pro, aDarf: totalAno.darf
+      };
+      Object.entries(valoresAno).forEach(([id, valor]) => {
+        const el = document.getElementById(id);
+        el.textContent = fmt(valor);
+      });
+      document.getElementById('aRes').className = liquidoAno >= 0 ? 'pos' : 'neg';
+      document.getElementById('aPorAtivo').innerHTML = '<b>Por Ativo no período:</b> ' + (Object.keys(ativosAno).length ? Object.entries(ativosAno).map(([k, v]) => `<span class="chip">${k}: ${fmt(v)}</span>`).join('') : '— lance no modo Por Operação para detalhar');
+
+      const tot = { gain: 0, loss: 0, margem: 0, digital: 0, car: 0, enzo: 0, ester: 0, estela: 0, pro: 0, darf: 0 };
+      lista.forEach(e => { const c = calc(e.resultado, e.darf); Object.keys(tot).forEach(k => tot[k] += c[k]); });
+      let tbody = document.getElementById('tbody');
+      tbody.innerHTML = '';
+      let totalLinhas = lista.length;
+      for (let i = 0; i < totalLinhas; i++) {
+        let e = lista[i];
+        if (e) {
+          let c = calc(e.resultado, e.darf);
+          let [y, m, d] = e.data.split('-');
+          let gIdx = dados.indexOf(e);
+          tbody.innerHTML += `<tr>
+            <td style="background:#9CA3AF;color:#000">${d}/${m}/${y}</td>
+            <td style="background:#00B0F0">${fmt(c.gain)}</td>
+            <td style="background:#C00000">${fmt(c.loss)}</td>
+            <td style="background:#FFC000;color:#000">${fmt(c.margem)}</td>
+            <td style="background:#ED7D31">${fmt(c.digital)}</td>
+            <td style="background:#00B050">${fmt(c.car)}</td>
+            <td style="background:#0070C0">${fmt(c.enzo)}</td>
+            <td style="background:#0070C0">${fmt(c.ester)}</td>
+            <td style="background:#0070C0">${fmt(c.estela)}</td>
+            <td style="background:#7030A0">${fmt(c.pro)}</td>
+            <td style="background:#374151">${fmt(c.darf)}</td>
+            <td style="background:#0f172a">
+              <button class="btn-mini blue" onclick="verOps(${gIdx})">Ops</button>
+              <button class="btn-mini amber" onclick="editar(${gIdx})">Editar</button>
+              <button class="btn-mini danger" onclick="excluir(${gIdx})">X</button>
+            </td>
+          </tr>`;
+        } else {
+          tbody.innerHTML += `<tr><td style="background:#9CA3AF;color:#000">00/00/0000</td><td colspan="11" style="background:#1e293b;color:#94a3b8;font-weight:600">Aguardando lançamento</td></tr>`;
+        }
+      }
+
+      document.getElementById('tfoot').innerHTML = `<td style="background:#9CA3AF;color:#000">TOTAL</td><td style="background:#00B0F0">${fmt(tot.gain)}</td><td style="background:#C00000">${fmt(tot.loss)}</td><td style="background:#FFC000;color:#000">${fmt(tot.margem)}</td><td style="background:#ED7D31">${fmt(tot.digital)}</td><td style="background:#00B050">${fmt(tot.car)}</td><td style="background:#0070C0">${fmt(tot.enzo)}</td><td style="background:#0070C0">${fmt(tot.ester)}</td><td style="background:#0070C0">${fmt(tot.estela)}</td><td style="background:#7030A0">${fmt(tot.pro)}</td><td style="background:#374151">${fmt(tot.darf)}</td><td style="background:#0f172a"></td>`;
+
+      let comp = document.getElementById('comparar');
+      comp.innerHTML = '';
+      meses.forEach((mn, mi) => {
+        let l = dados.filter(d => { let [y, m] = d.data.split('-'); return Number(y) === selAno && Number(m) === mi + 1; });
+        if (!l.length) return;
+        let t = l.reduce((s, e) => s + e.resultado, 0);
+        comp.innerHTML += `<button class="ghost" onclick="selMes=${mi};render()" style="min-width:115px;font-size:12px">${mn}<br><span class="${t >= 0 ? 'pos' : 'neg'}">${fmt(t)}</span></button>`;
+      });
+      renderFinanceiro(dataInicio, dataFim, inicioValido);
+    }
+    function verOps(idx) {
+      let e = dados[idx];
+      let dBr = e.data.split('-').reverse().join('/');
+      if (!e.ops || !e.ops.length) {
+        document.getElementById('detalhe').innerHTML = `<b>${dBr}:</b> Lançamento simples — Resultado líquido: <b>${fmt(e.resultado)}</b>`;
+        return;
+      }
+      document.getElementById('detalhe').innerHTML = `<b>Operações de ${dBr}:</b> ` + e.ops.map(o => {
+        const meta = o.numeroNota ? ` • Pregão ${o.dataPregao ? o.dataPregao.split('-').reverse().join('/') : dBr} • Liquidação ${o.dataLiquidacao ? o.dataLiquidacao.split('-').reverse().join('/') : '—'} • NC ${o.numeroNota}` : '';
+        return `<span class="chip">${o.ativo}: ${fmt(o.valor)}${meta}</span>`;
+      }).join('') + ` <b>Total: ${fmt(e.resultado)}</b>`;
+    }
+    function excluir(idx) {
+      if (confirm('Excluir esse pregão?')) { dados.splice(idx, 1); save(); render(); }
+    }
+    function exportar() {
+      let b = new Blob([JSON.stringify({ versao: 2, dados, movimentacoesFinanceiras, historicoAjustes }, null, 2)], { type: 'application/json' });
+      let a = document.createElement('a'); a.href = URL.createObjectURL(b); a.download = 'relatorio-cnpj-mental.json'; a.click();
+    }
+    function importar(ev) {
+      let f = ev.target.files[0]; if (!f) return;
+      let r = new FileReader();
+      r.onload = e => {
+        try {
+          let arr = JSON.parse(e.target.result);
+          if (Array.isArray(arr)) { dados = arr; }
+          else if (arr && Array.isArray(arr.dados)) {
+            dados = arr.dados;
+            if (Array.isArray(arr.movimentacoesFinanceiras)) movimentacoesFinanceiras = arr.movimentacoesFinanceiras;
+            if (Array.isArray(arr.historicoAjustes)) historicoAjustes = arr.historicoAjustes;
+          } else throw new Error('Formato de backup não reconhecido.');
+          dados.sort((a, b) => a.data.localeCompare(b.data));
+          save(); salvarFinanceiro();
+          localStorage.setItem('cnpj_ajustes_daytrade_v1', JSON.stringify(historicoAjustes));
+          render(); alert('Backup restaurado!');
+        } catch { alert('Arquivo inválido.'); }
+      };
+      r.readAsText(f);
+    }
+
+    // Importa relatórios CSV da plataforma (separador ; e números no padrão brasileiro).
+    function importarCSV(ev) {
+      const f = ev.target.files && ev.target.files[0];
+      if (!f) return;
+      const reader = new FileReader();
+      reader.onload = e => {
+        try {
+          const linhas = String(e.target.result || '').replace(/^\uFEFF/, '').split(/\r?\n/).filter(l => l.trim());
+          const idxCab = linhas.findIndex(l => l.trim().startsWith('Ativo;') && l.includes('Abertura') && l.includes('Res. Operação'));
+          if (idxCab < 0) throw new Error('Não encontrei o cabeçalho esperado (Ativo, Abertura e Res. Operação).');
+          const cab = linhas[idxCab].split(';').map(s => s.trim());
+          const col = nome => cab.indexOf(nome);
+          const iAtivo = col('Ativo'), iAbertura = col('Abertura'), iResultado = col('Res. Operação');
+          if ([iAtivo, iAbertura, iResultado].some(i => i < 0)) throw new Error('O CSV não contém as colunas necessárias.');
+          const numeroBR = valor => {
+            let s = String(valor || '').replace(/R\$/g, '').trim();
+            if (!s || s === '-') return 0;
+            s = s.replace(/\./g, '').replace(',', '.');
+            const n = Number(s);
+            return Number.isFinite(n) ? n : 0;
+          };
+          const porDia = {};
+          for (const linha of linhas.slice(idxCab + 1)) {
+            const c = linha.split(';');
+            if (c.length <= Math.max(iAtivo, iAbertura, iResultado)) continue;
+            const ativoOriginal = (c[iAtivo] || '').trim();
+            const abertura = (c[iAbertura] || '').trim();
+            const dataPartes = abertura.slice(0, 10).split('/');
+            if (dataPartes.length !== 3) continue;
+            const data = `${dataPartes[2]}-${dataPartes[1].padStart(2, '0')}-${dataPartes[0].padStart(2, '0')}`;
+            if (!/^20\d{2}-\d{2}-\d{2}$/.test(data) || !ativoOriginal) continue;
+            const valor = numeroBR(c[iResultado]);
+            let ativo = ativoOriginal;
+            if (/^WIN[A-Z]\d{2}$/i.test(ativoOriginal)) ativo = 'Índice WIN';
+            else if (/^WDO[A-Z]\d{2}$/i.test(ativoOriginal)) ativo = 'Mini Dólar';
+            else if (/^BIT[A-Z0-9]*$/i.test(ativoOriginal)) ativo = 'Bitcoin';
+            else if (ativoOriginal === 'PETR4') ativo = 'Petrobras PETR4';
+            else if (ativoOriginal === 'VALE3') ativo = 'Vale VALE3';
+            if (!porDia[data]) porDia[data] = { data, resultado: 0, darf: 0, opsPorAtivo: {} };
+            porDia[data].resultado += valor;
+            porDia[data].opsPorAtivo[ativo] = (porDia[data].opsPorAtivo[ativo] || 0) + valor;
+          }
+          const importados = Object.values(porDia).map(d => ({
+            data: d.data,
+            resultado: Number(d.resultado.toFixed(2)),
+            darf: 0,
+            ops: Object.entries(d.opsPorAtivo)
+              .filter(([, valor]) => Math.abs(valor) > 0.000001)
+              .map(([ativo, valor]) => ({ ativo, valor: Number(valor.toFixed(2)) }))
+          })).sort((a, b) => a.data.localeCompare(b.data));
+          if (!importados.length) throw new Error('Nenhuma operação válida foi encontrada no CSV.');
+          const datasImportadas = new Set(importados.map(d => d.data));
+          const existentesMantidos = dados.filter(d => !datasImportadas.has(d.data));
+          const substituidos = dados.length - existentesMantidos.length;
+          dados = [...existentesMantidos, ...importados].sort((a, b) => a.data.localeCompare(b.data));
+          save();
+          const ultima = importados[importados.length - 1].data.split('-');
+          selAno = Number(ultima[0]); selMes = Number(ultima[1]) - 1;
+          render();
+          alert(`Importação concluída!\n${linhas.slice(idxCab + 1).length} linhas lidas.\n${importados.length} pregões importados.\n${substituidos} pregões existentes atualizados.\nOs resultados foram agrupados por data e ativo.`);
+        } catch (err) {
+          alert('Não foi possível importar o CSV: ' + err.message);
+        } finally {
+          ev.target.value = '';
+        }
+      };
+      reader.onerror = () => { alert('Erro ao ler o arquivo CSV.'); ev.target.value = ''; };
+      reader.readAsText(f, 'windows-1252');
+    }
+
+    // Importador independente de ajustes Day-Trade (extrato Clear/B3 em CSV ou Excel).
+    function normalizarCabecalho(v) {
+      return String(v || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[^a-z0-9]/g, '');
+    }
+    function dataPlanilha(v) {
+      if (v instanceof Date && !isNaN(v)) return v.toISOString().slice(0,10);
+      if (typeof v === 'number' && v > 20000 && v < 80000 && window.XLSX) {
+        const d = XLSX.SSF.parse_date_code(v);
+        if (d) return `${d.y}-${String(d.m).padStart(2,'0')}-${String(d.d).padStart(2,'0')}`;
+      }
+      const s = String(v || '').trim();
+      let m = s.match(/^(\d{1,2})[\/.-](\d{1,2})[\/.-](\d{4})/);
+      if (m) return `${m[3]}-${m[2].padStart(2,'0')}-${m[1].padStart(2,'0')}`;
+      m = s.match(/^(\d{4})-(\d{2})-(\d{2})/);
+      return m ? `${m[1]}-${m[2]}-${m[3]}` : '';
+    }
+    function numeroExtrato(v) {
+      if (typeof v === 'number') return Number.isFinite(v) ? v : NaN;
+      let s = String(v == null ? '' : v).trim().replace(/R\$/gi,'').replace(/\s/g,'');
+      if (!s || s === '-') return NaN;
+      let negativo = /^\(.*\)$/.test(s) || /^-/.test(s);
+      s = s.replace(/[()]/g,'').replace(/[^0-9,.-]/g,'');
+      if (s.includes(',')) s = s.replace(/\./g,'').replace(',','.');
+      const n = Number(s);
+      return Number.isFinite(n) ? (negativo ? -Math.abs(n) : n) : NaN;
+    }
+    function interpretarAjuste(descricao) {
+      const s = String(descricao || '').replace(/\s+/g,' ').trim();
+      if (!/AJUSTE\s+DAY[- ]?TRADE/i.test(s)) return null;
+      let m = s.match(/AJUSTE\s+DAY[- ]?TRADE\s+PR\.?\s*(\d{2}\/\d{2}\/\d{4})\s+NC\.?\s*(\d+)\s+([A-Z0-9]+)/i);
+      if (!m) m = s.match(/AJUSTE\s+DAY[- ]?TRADE\s+(\d{2}\/\d{2}\/\d{4})\s+(\d+)\s+([A-Z0-9]+)/i);
+      if (!m) return { invalido:true };
+      const preg = dataPlanilha(m[1]);
+      const cod = m[3].toUpperCase();
+      let ativo = ({WDO:'Mini Dólar',WIN:'Mini Índice',BIT:'Bitcoin Futuro'})[cod];
+      if (!ativo) {
+        const prefixo = cod.match(/^(WDO|WIN|BIT)/);
+        if (prefixo) ativo = ({WDO:'Mini Dólar',WIN:'Mini Índice',BIT:'Bitcoin Futuro'})[prefixo[1]];
+      }
+      if (!ativo || !preg) return { invalido:true };
+      return { dataPregao:preg, numeroNota:m[2], codigoAtivo:cod, ativo };
+    }
+    function lerCSVGenerico(texto) {
+      const linhas = String(texto || '').replace(/^\uFEFF/,'').split(/\r?\n/).filter(l=>l.trim());
+      if (!linhas.length) return [];
+      const primeira = linhas[0];
+      const sep = (primeira.match(/;/g)||[]).length >= (primeira.match(/\t/g)||[]).length ? ';' : ((primeira.match(/\t/g)||[]).length ? '\t' : ',');
+      return linhas.map(l => {
+        const out=[]; let cur='', aspas=false;
+        for(let i=0;i<l.length;i++) { const ch=l[i]; if(ch==='"' && l[i+1]==='"' && aspas){cur+='"';i++;} else if(ch==='"'){aspas=!aspas;} else if(ch===sep && !aspas){out.push(cur);cur='';} else cur+=ch; }
+        out.push(cur); return out;
+      });
+    }
+    function prepararAjustes(matriz, nomeArquivo) {
+      if (!matriz || !matriz.length) throw new Error('A planilha está vazia.');
+      const cab = matriz.findIndex(row => {
+        const h=row.map(normalizarCabecalho);
+        return h.some(x=>x.includes('liquidacao')) && h.some(x=>x==='valor' || x.includes('valor')) && h.some(x=>x.includes('descricao'));
+      });
+      if (cab < 0) throw new Error('Não encontrei as colunas Liquidação, Valor e Descrição.');
+      const headers=matriz[cab].map(normalizarCabecalho);
+      const iL= headers.findIndex(x=>x.includes('liquidacao'));
+      const iV= headers.findIndex(x=>x==='valor' || x.includes('valor'));
+      const iD= headers.findIndex(x=>x.includes('descricao'));
+      const registros=[]; let ignorados=0, invalidos=0;
+      for (const row of matriz.slice(cab+1)) {
+        const desc=String(row[iD] ?? '').trim();
+        if (!/AJUSTE\s+DAY[- ]?TRADE/i.test(desc)) { ignorados++; continue; }
+        const info=interpretarAjuste(desc); const liquidacao=dataPlanilha(row[iL]); const valor=numeroExtrato(row[iV]);
+        if (!info || info.invalido || !liquidacao || !Number.isFinite(valor)) { invalidos++; continue; }
+        const chave=`${info.dataPregao}|${info.numeroNota}|${info.codigoAtivo}`;
+        registros.push({ chave, data:info.dataPregao, dataPregao:info.dataPregao, dataLiquidacao:liquidacao, numeroNota:info.numeroNota, codigoAtivo:info.codigoAtivo, ativo:info.ativo, valor:Number(valor.toFixed(2)), descricao:desc });
+      }
+      const unicos=new Map(); let repetidosArquivo=0;
+      for (const r of registros) { if(unicos.has(r.chave)) { repetidosArquivo++; continue; } unicos.set(r.chave,r); }
+      const existentes=new Set(historicoAjustes.map(x=>x.chave));
+      const novos=[...unicos.values()].filter(r=>!existentes.has(r.chave));
+      const jaImportados=unicos.size-novos.length;
+      return { nomeArquivo, linhas:matriz.length-cab-1, novos, totalAjustes:registros.length, ignorados, invalidos, repetidosArquivo, jaImportados };
+    }
+    async function lerAjustesDayTrade(ev) {
+      const file=ev.target.files && ev.target.files[0]; if(!file) return;
+      const status=document.getElementById('ajustesStatus'); const area=document.getElementById('ajustesReview');
+      status.textContent='Lendo arquivo...'; area.style.display='none';
+      try {
+        let matriz;
+        if (/\.xlsx?$/i.test(file.name)) {
+          if(!window.XLSX) throw new Error('A biblioteca Excel não carregou. Atualize a página e tente novamente.');
+          const bytes=await file.arrayBuffer(); const wb=XLSX.read(bytes,{type:'array',cellDates:true});
+          const ws=wb.Sheets[wb.SheetNames[0]]; matriz=XLSX.utils.sheet_to_json(ws,{header:1,raw:true,defval:''});
+        } else {
+          const bytes=await file.arrayBuffer(); let texto;
+          try { texto=new TextDecoder('utf-8',{fatal:true}).decode(bytes); } catch { texto=new TextDecoder('windows-1252').decode(bytes); }
+          matriz=lerCSVGenerico(texto);
+        }
+        ajustesPendentes=prepararAjustes(matriz,file.name);
+        mostrarPreviaAjustes();
+        status.textContent=`Arquivo lido: ${file.name}. Confira os ajustes encontrados antes de confirmar.`;
+        area.scrollIntoView({behavior:'smooth',block:'nearest'});
+      } catch(err) { status.textContent='Falha na leitura: '+err.message; alert('Não foi possível importar os ajustes: '+err.message); }
+      finally { ev.target.value=''; }
+    }
+    function mostrarPreviaAjustes() {
+      const a=ajustesPendentes; const area=document.getElementById('ajustesReview'); if(!a) return;
+      const soma=a.novos.reduce((s,r)=>s+r.valor,0);
+      const linhas=a.novos.slice(0,100).map(r=>`<tr><td>${r.dataPregao.split('-').reverse().join('/')}</td><td>${r.dataLiquidacao.split('-').reverse().join('/')}</td><td>${r.numeroNota}</td><td>${r.ativo}</td><td class="${r.valor>=0?'pos':'neg'}">${fmt(r.valor)}</td></tr>`).join('');
+      area.innerHTML=`<b>Conferência dos ajustes Day-Trade</b><div class="small">Arquivo: ${a.nomeArquivo}</div>
+        <div class="grid-3" style="margin:8px 0"><div class="kpi">Ajustes novos<b>${a.novos.length}</b></div><div class="kpi">Já importados<b>${a.jaImportados}</b></div><div class="kpi">Soma dos novos<b>${fmt(soma)}</b></div></div>
+        <div class="small">Linhas verificadas: ${a.linhas} • Fora de ajuste: ${a.ignorados} • Ajustes não reconhecidos: ${a.invalidos} • Repetidos no arquivo: ${a.repetidosArquivo}</div>
+        <div class="wrap" style="margin-top:8px"><table class="import-table"><thead><tr><th>Pregão</th><th>Liquidação</th><th>NC</th><th>Ativo</th><th>Valor</th></tr></thead><tbody>${linhas || '<tr><td colspan="5">Nenhum ajuste novo para importar.</td></tr>'}</tbody></table></div>
+        ${a.novos.length>100?`<div class="small">Exibindo os primeiros 100 de ${a.novos.length} registros; todos serão importados.</div>`:''}
+        <div class="grid" style="margin-top:8px"><button class="green" onclick="confirmarAjustesDayTrade()" ${a.novos.length?'':'disabled'}>Confirmar e importar ${a.novos.length} ajuste(s)</button><button class="ghost" onclick="cancelarAjustesDayTrade()">Cancelar</button></div>`;
+      area.style.display='block';
+    }
+    function confirmarAjustesDayTrade() {
+      if(!ajustesPendentes || !ajustesPendentes.novos.length) { alert('Não há ajustes novos para importar.'); return; }
+      const novos=ajustesPendentes.novos; const porDia=new Map();
+      for(const r of novos) {
+        if(!porDia.has(r.dataPregao)) porDia.set(r.dataPregao,[]);
+        porDia.get(r.dataPregao).push(r);
+      }
+      for(const [data,lista] of porDia) {
+        let entrada=dados.find(d=>d.data===data);
+        if(!entrada) { entrada={data,resultado:0,darf:0,ops:[]}; dados.push(entrada); }
+        if(!Array.isArray(entrada.ops)) entrada.ops=[];
+        if(entrada.ops.length===0 && Number(entrada.resultado||0)!==0) {
+          entrada.ops.push({ativo:'Lançamento anterior',valor:Number(entrada.resultado)});
+        }
+        for(const r of lista) {
+          entrada.resultado=Number((Number(entrada.resultado||0)+r.valor).toFixed(2));
+          entrada.ops.push({ativo:r.ativo,valor:r.valor,dataLiquidacao:r.dataLiquidacao,dataPregao:r.dataPregao,numeroNota:r.numeroNota,codigoAtivo:r.codigoAtivo,origem:'ajuste-day-trade'});
+          historicoAjustes.push({chave:r.chave,dataPregao:r.dataPregao,dataLiquidacao:r.dataLiquidacao,numeroNota:r.numeroNota,codigoAtivo:r.codigoAtivo,ativo:r.ativo,valor:r.valor,importadoEm:new Date().toISOString()});
+        }
+      }
+      dados.sort((a,b)=>a.data.localeCompare(b.data));
+      historicoAjustes=historicoAjustes.concat([]);
+      localStorage.setItem('cnpj_ajustes_daytrade_v1',JSON.stringify(historicoAjustes));
+      const ultima=novos[novos.length-1].dataPregao.split('-'); selAno=Number(ultima[0]); selMes=Number(ultima[1])-1;
+      const qtd=novos.length; ajustesPendentes=null; document.getElementById('ajustesReview').style.display='none';
+      document.getElementById('ajustesStatus').textContent=`Importação concluída: ${qtd} ajuste(s) Day-Trade adicionados. Os valores foram agrupados por data do pregão, mantendo cada ativo e número de nota separado.`;
+      save(); render();
+      alert(`Importação concluída!\n${qtd} ajuste(s) importados.\n${historicoAjustes.length} registros no histórico de prevenção de duplicidades.`);
+    }
+    function cancelarAjustesDayTrade() {
+      ajustesPendentes=null; document.getElementById('ajustesReview').style.display='none';
+      document.getElementById('ajustesStatus').textContent='Importação cancelada. Nenhum ajuste foi cadastrado.';
+    }
+
+    function adicionarMovimentacaoManual() {
+      const tipo=document.getElementById('finManualTipo').value;
+      const data=document.getElementById('finManualData').value;
+      const digitado=valorFinanceiro(document.getElementById('finManualValor').value);
+      if (!data || data<'2020-01-01' || data>'2030-12-31') { alert('Informe a data do pregão entre 2020 e 2030.'); return; }
+      if (!Number.isFinite(digitado) || digitado<=0) { alert('Informe um valor maior que zero.'); return; }
+      const valor=Number((tipo==='recebimento' ? -Math.abs(digitado) : Math.abs(digitado)).toFixed(2));
+      movimentacoesFinanceiras.push({id:`manual-${Date.now()}-${Math.random().toString(36).slice(2,8)}`,tipo,data,valor,origem:'manual',criadoEm:new Date().toISOString()});
+      movimentacoesFinanceiras.sort((a,b)=>a.data.localeCompare(b.data)); salvarFinanceiro();
+      document.getElementById('finManualValor').value='';
+      document.getElementById('finStatus').textContent=`${tipo==='recebimento'?'Recebimento':'Retirada'} ${fmt(valor)} cadastrado.`;
+      render();
+    }
+    function excluirMovimentacaoFinanceira(id) {
+      const item=movimentacoesFinanceiras.find(x=>String(x.id)===String(id)); if(!item)return;
+      if(!confirm(`Excluir ${item.tipo==='recebimento'?'recebimento':'retirada'} ${fmt(item.valor)} de ${item.data.split('-').reverse().join('/')}?`))return;
+      movimentacoesFinanceiras=movimentacoesFinanceiras.filter(x=>String(x.id)!==String(id)); salvarFinanceiro();
+      document.getElementById('finStatus').textContent='Lançamento financeiro excluído.'; render();
+    }
+    function salvarFinanceiro() {
+      localStorage.setItem('cnpj_movimentacoes_financeiras_v1', JSON.stringify(movimentacoesFinanceiras));
+    }
+    function dataFinanceira(v) {
+      if (v instanceof Date && !isNaN(v)) {
+        const y=v.getFullYear(), m=String(v.getMonth()+1).padStart(2,'0'), d=String(v.getDate()).padStart(2,'0');
+        return `${y}-${m}-${d}`;
+      }
+      if (typeof v === 'number' && v > 20000 && v < 80000 && window.XLSX) {
+        const d=XLSX.SSF.parse_date_code(v);
+        if (d) return `${d.y}-${String(d.m).padStart(2,'0')}-${String(d.d).padStart(2,'0')}`;
+      }
+      const s=String(v == null ? '' : v).trim();
+      let m=s.match(/^(\d{1,2})[\/.-](\d{1,2})[\/.-](\d{4})/);
+      if (m) return `${m[3]}-${m[2].padStart(2,'0')}-${m[1].padStart(2,'0')}`;
+      m=s.match(/^(\d{4})-(\d{2})-(\d{2})/);
+      return m ? `${m[1]}-${m[2]}-${m[3]}` : '';
+    }
+    function valorFinanceiro(v) {
+      if (typeof v === 'number') return Number.isFinite(v) ? v : NaN;
+      let s=String(v == null ? '' : v).trim().replace(/R\$/gi,'').replace(/\s/g,'');
+      if (!s || s === '-') return NaN;
+      const negativo=/^\(.*\)$/.test(s) || /^-/.test(s);
+      s=s.replace(/[()]/g,'').replace(/[^0-9,.-]/g,'');
+      if (s.includes(',')) s=s.replace(/\./g,'').replace(',','.');
+      const n=Number(s);
+      return Number.isFinite(n) ? (negativo ? -Math.abs(n) : n) : NaN;
+    }
+    function prepararFinanceiro(matriz, tipo, nomeArquivo) {
+      if (!matriz || !matriz.length) throw new Error('A planilha está vazia.');
+      let cab=-1, iData=0, iValor=1;
+      for (let i=0;i<Math.min(matriz.length,20);i++) {
+        const h=matriz[i].map(normalizarCabecalho);
+        const d=h.findIndex(x=>x==='data' || x.includes('data') || x.includes('liquidacao'));
+        const v=h.findIndex(x=>x==='valor' || x.includes('valor') || x.includes('montante'));
+        if (d>=0 && v>=0) { cab=i; iData=d; iValor=v; break; }
+      }
+      const inicio=cab>=0 ? cab+1 : 0;
+      const linhas=[]; let invalidos=0, vazios=0;
+      for (const row of matriz.slice(inicio)) {
+        const data=dataFinanceira(row[iData]);
+        const valor=valorFinanceiro(row[iValor]);
+        if (!data && (row[iData] == null || String(row[iData]).trim()==='') && (row[iValor] == null || String(row[iValor]).trim()==='')) { vazios++; continue; }
+        if (!/^20\d{2}-\d{2}-\d{2}$/.test(data) || !Number.isFinite(valor) || valor===0) { invalidos++; continue; }
+        if (data<'2020-01-01' || data>'2030-12-31') { invalidos++; continue; }
+        const valorNormalizado=tipo==='recebimento' ? -Math.abs(valor) : Math.abs(valor);
+        linhas.push({tipo,data,valor:Number(valorNormalizado.toFixed(2))});
+      }
+      if (!linhas.length) throw new Error('Nenhuma linha válida encontrada. Confira se as colunas Data e Valor estão corretas.');
+      const existentes={};
+      movimentacoesFinanceiras.filter(x=>x.tipo===tipo).forEach(x=>{
+        const k=`${x.data}|${Number(x.valor).toFixed(2)}`;
+        existentes[k]=(existentes[k]||0)+1;
+      });
+      const vistos={}; const novos=[]; let jaImportados=0;
+      for (const r of linhas) {
+        const k=`${r.data}|${r.valor.toFixed(2)}`;
+        vistos[k]=(vistos[k]||0)+1;
+        if (vistos[k] <= (existentes[k]||0)) { jaImportados++; continue; }
+        novos.push(r);
+      }
+      return {tipo,nomeArquivo,linhasLidas:linhas.length,invalidos,vazios,jaImportados,novos};
+    }
+    function selecionarExcelFinanceiro(tipo) {
+      document.getElementById('finTipo').value=tipo;
+      const input=document.getElementById('fileFinanceiro');
+      input.value='';
+      input.click();
+    }
+    async function lerMovimentacoesFinanceiras() {
+      const file=document.getElementById('fileFinanceiro').files[0];
+      if (!file) { alert('Selecione um arquivo CSV ou Excel.'); return; }
+      const tipo=document.getElementById('finTipo').value;
+      const status=document.getElementById('finStatus');
+      status.textContent='Lendo arquivo financeiro...';
+      try {
+        let matriz;
+        if (/\.xlsx?$/i.test(file.name)) {
+          if (!window.XLSX) throw new Error('A biblioteca Excel não carregou. Atualize a página e tente novamente.');
+          const wb=XLSX.read(await file.arrayBuffer(),{type:'array',cellDates:true});
+          matriz=XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]],{header:1,raw:true,defval:''});
+        } else {
+          const bytes=await file.arrayBuffer(); let texto;
+          try { texto=new TextDecoder('utf-8',{fatal:true}).decode(bytes); } catch { texto=new TextDecoder('windows-1252').decode(bytes); }
+          matriz=lerCSVGenerico(texto);
+        }
+        financeiroPendente=prepararFinanceiro(matriz,tipo,file.name);
+        mostrarPreviaFinanceiro();
+        status.textContent=`Arquivo lido: ${file.name}. Confira a prévia antes de confirmar.`;
+      } catch(err) { status.textContent='Falha na leitura: '+err.message; alert('Não foi possível ler as movimentações: '+err.message); }
+      finally { document.getElementById('fileFinanceiro').value=''; }
+    }
+    function mostrarPreviaFinanceiro() {
+      const a=financeiroPendente; const area=document.getElementById('finReview'); if(!a) return;
+      const soma=a.novos.reduce((s,r)=>s+r.valor,0);
+      const linhas=a.novos.slice(0,100).map(r=>`<tr><td>${r.data.split('-').reverse().join('/')}</td><td class="${r.valor>=0?'pos':'neg'}">${fmt(r.valor)}</td></tr>`).join('');
+      area.innerHTML=`<b>Conferência — ${a.tipo==='recebimento'?'Recebimentos':'Retiradas'}</b><div class="small">Arquivo: ${a.nomeArquivo}</div>
+        <div class="grid-3" style="margin:8px 0"><div class="kpi">Linhas válidas<b>${a.linhasLidas}</b></div><div class="kpi">Novas<b>${a.novos.length}</b></div><div class="kpi">Já importadas<b>${a.jaImportados}</b></div></div>
+        <div class="small">Linhas inválidas: ${a.invalidos} • Linhas vazias: ${a.vazios} • Soma dos novos: <b>${fmt(soma)}</b></div>
+        <div class="wrap" style="margin-top:8px"><table class="import-table"><thead><tr><th>Data</th><th>Valor</th></tr></thead><tbody>${linhas || '<tr><td colspan="2">Nenhuma movimentação nova.</td></tr>'}</tbody></table></div>
+        ${a.novos.length>100?`<div class="small">Exibindo os primeiros 100 de ${a.novos.length} registros; todos serão importados.</div>`:''}
+        <div class="grid" style="margin-top:8px"><button class="green" onclick="confirmarFinanceiro()" ${a.novos.length?'':'disabled'}>Confirmar ${a.novos.length} movimentação(ões)</button><button class="ghost" onclick="cancelarFinanceiro()">Cancelar</button></div>`;
+      area.style.display='block';
+    }
+    function confirmarFinanceiro() {
+      if (!financeiroPendente || !financeiroPendente.novos.length) return;
+      const qtd=financeiroPendente.novos.length;
+      const tipo=financeiroPendente.tipo;
+      const agora=new Date().toISOString();
+      financeiroPendente.novos.forEach((r,i)=>movimentacoesFinanceiras.push({...r,id:`${Date.now()}-${i}-${Math.random().toString(36).slice(2,8)}`,importadoEm:agora}));
+      movimentacoesFinanceiras.sort((a,b)=>a.data.localeCompare(b.data));
+      salvarFinanceiro(); financeiroPendente=null;
+      document.getElementById('finReview').style.display='none';
+      document.getElementById('finStatus').textContent=`Importação concluída: ${qtd} ${tipo==='recebimento'?'recebimento(s)':'retirada(s)'} adicionados. Reimportações são conferidas pela quantidade de ocorrências de cada data e valor.`;
+      render();
+    }
+    function cancelarFinanceiro() {
+      financeiroPendente=null; document.getElementById('finReview').style.display='none';
+      document.getElementById('finStatus').textContent='Importação cancelada. Nenhuma movimentação foi cadastrada.';
+    }
+    function renderFinanceiro(inicio,fim,valido) {
+      const lista=valido ? movimentacoesFinanceiras.filter(x=>x.data>=inicio && x.data<=fim) : [];
+      let recebido=0, retirado=0; const porMes={}, porAno={};
+      lista.forEach(x=>{
+        const v=Math.abs(Number(x.valor)||0);
+        if(x.tipo==='recebimento')recebido+=v;else retirado+=v;
+        const [y,m]=x.data.split('-'), km=`${y}-${m}`;
+        if(!porMes[km])porMes[km]={recebido:0,retirado:0};
+        if(!porAno[y])porAno[y]={recebido:0,retirado:0};
+        const campo=x.tipo==='recebimento'?'recebido':'retirado';
+        porMes[km][campo]+=v;porAno[y][campo]+=v;
+      });
+      const saldo=retirado-recebido;
+      document.getElementById('finRecebido').textContent=fmt(-recebido);
+      document.getElementById('finRetirado').textContent=fmt(retirado);
+      const elSaldo=document.getElementById('finSaldo');elSaldo.textContent=fmt(saldo);elSaldo.className=saldo>=0?'pos':'neg';
+      document.getElementById('finPeriodoInfo').textContent=valido?`Movimentações de ${inicio.split('-').reverse().join('/')} até ${fim.split('-').reverse().join('/')} • ${lista.length} lançamento(s). Separado do resultado operacional do Day Trade.`:'Período inválido. Ajuste as datas no Resumo Consolidado acima.';
+      const nomeMes=km=>`${meses[Number(km.slice(5,7))-1]} / ${km.slice(0,4)}`;
+      const linhaResumo=x=>`<td class="neg">${fmt(-x.recebido)}</td><td class="pos">${fmt(x.retirado)}</td><td class="${x.retirado-x.recebido>=0?'pos':'neg'}">${fmt(x.retirado-x.recebido)}</td>`;
+      document.getElementById('finMensal').innerHTML=Object.keys(porMes).sort().map(k=>`<tr><td>${nomeMes(k)}</td>${linhaResumo(porMes[k])}</tr>`).join('')||'<tr><td colspan="4">Sem movimentações no período.</td></tr>';
+      document.getElementById('finAnual').innerHTML=Object.keys(porAno).sort().map(k=>`<tr><td>${k}</td>${linhaResumo(porAno[k])}</tr>`).join('')||'<tr><td colspan="4">Sem movimentações no período.</td></tr>';
+      const historico=movimentacoesFinanceiras.slice().sort((a,b)=>b.data.localeCompare(a.data));
+      document.getElementById('finHistorico').innerHTML=historico.map(x=>{
+        const tipoTexto=x.tipo==='recebimento'?'Recebimento':'Retirada';
+        const id=String(x.id||'').replace(/[^a-zA-Z0-9_-]/g,'');
+        return `<tr><td>${x.data.split('-').reverse().join('/')}</td><td>${tipoTexto}</td><td class="${Number(x.valor)<0?'neg':'pos'}">${fmt(Number(x.valor)||0)}</td><td><button class="btn-mini danger" onclick="excluirMovimentacaoFinanceira('${id}')">Excluir</button></td></tr>`;
+      }).join('')||'<tr><td colspan="4">Nenhum lançamento cadastrado.</td></tr>';
+    }
+    function exportarFinanceiroCSV() {
+      const linhas=['Tipo;Data;Valor'];
+      movimentacoesFinanceiras.forEach(x=>linhas.push([x.tipo,x.data,fmt(x.valor)].join(';')));
+      const b=new Blob(['\uFEFF'+linhas.join('\n')],{type:'text/csv;charset=utf-8;'});
+      const a=document.createElement('a'); a.href=URL.createObjectURL(b); a.download='movimentacoes-financeiras.csv'; a.click(); URL.revokeObjectURL(a.href);
+    }
+
+    function exportarCSV() {
+      let linhas = ['Data;Resultado;Loss;Margem;Digital;Caridade;Enzo;Ester;Estela;Pro-Labore;DARF;Operacoes'];
+      filtrados().forEach(e => {
+        let c = calc(e.resultado, e.darf);
+        linhas.push([e.data, fmt(c.gain), fmt(c.loss), fmt(c.margem), fmt(c.digital), fmt(c.car), fmt(c.enzo), fmt(c.ester), fmt(c.estela), fmt(c.pro), fmt(c.darf), (e.ops || []).map(o => o.ativo + ':' + o.valor).join(' | ')].join(';'));
+      });
+      let b = new Blob(['\uFEFF' + linhas.join('\n')], { type: 'text/csv;charset=utf-8;' });
+      let a = document.createElement('a'); a.href = URL.createObjectURL(b); a.download = 'relatorio-performance.csv'; a.click();
+    }
+    function teste() {
+      dados = [
+        { data: '2026-11-01', resultado: 150, darf: 0, ops: [{ ativo: 'Bitcoin', valor: 150 }] },
+        { data: '2026-11-02', resultado: 50, darf: 20, ops: [] },
+        { data: '2026-11-17', resultado: 100, darf: 0, ops: [] },
+        { data: '2026-11-18', resultado: -112, darf: 0, ops: [] },
+        { data: '2026-11-19', resultado: 140, darf: 0, ops: [{ ativo: 'Bitcoin', valor: 120 }, { ativo: 'Petrobras PETR4', valor: -30 }, { ativo: 'Mini Dólar', valor: 50 }] }
+      ];
+      selMes = 10; selAno = 2026; save(); render();
+    }
+    function limparTudo() {
+      if (confirm('Apagar todos os pregões salvos?')) { dados = []; save(); render(); }
+    }
+    function definirPeriodoMes() {
+      const inicio = new Date(selAno, selMes, 1);
+      const fim = new Date(selAno, selMes + 1, 0);
+      const iso = d => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+      document.getElementById('periodoDataInicio').value = iso(inicio);
+      document.getElementById('periodoDataFim').value = iso(fim);
+    }
+    document.getElementById('mes').onchange = e => { selMes = Number(e.target.value); definirPeriodoMes(); render(); };
+    document.getElementById('ano').onchange = e => { selAno = Number(e.target.value); definirPeriodoMes(); render(); };
+    ['periodoDataInicio','periodoDataFim'].forEach(id => { document.getElementById(id).onchange = render; });
+    document.getElementById('data').value = new Date().toISOString().slice(0, 10);
+    document.getElementById('finManualData').value = new Date().toISOString().slice(0, 10);
+    document.getElementById('resSimples').oninput = atualizaPrevia;
+    document.getElementById('darf').oninput = atualizaPrevia;
+    if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => {});
+    render(); atualizaPrevia();
+    const abaInicial = localStorage.getItem('cnpj_ultima_aba');
+    mostrarAba(['resumo','daytrade','financeiro'].includes(abaInicial) ? abaInicial : 'daytrade');
+  </script>
+</body>
+</html>
